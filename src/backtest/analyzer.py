@@ -61,16 +61,18 @@ class TradeAnalyzer(bt.Analyzer):
                 "dt_open": self.datas[0].datetime.datetime(0),
                 "price_open": trade.price,
                 "size": trade.size,
+                "direction": "long" if trade.size > 0 else "short",
                 "commission_open": trade.commission,
             }
         if trade.isclosed:
             opened = self._trade_opened.pop(trade.ref, {})
-            direction = "long" if trade.size > 0 else "short"
+            direction = opened.get("direction", "long")
+            open_size = abs(opened.get("size", 0))
             record = TradeRecord(
                 code=trade.data._name,
                 direction=direction,
                 price=trade.price,
-                size=abs(trade.size),
+                size=open_size,
                 value=abs(trade.value),
                 commission=trade.commission,
                 pnl=trade.pnl,
